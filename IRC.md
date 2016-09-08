@@ -10,9 +10,9 @@ Lines prefixed with < are sent from client to server, and lines prefixed with > 
 
 You can connect to Twitch IRC using the following bits of information:
 
-- The server name to connect to is: `irc.twitch.tv`.
+- The server name to connect to is: `irc.chat.twitch.tv`.
 - The port to connect to is `6667`
-- **SSL is not currently supported for Twitch IRC**
+- SSL is supported on `irc.chat.twitch.tv` on port 443
 - Your nickname must be your Twitch username in lowercase.
 - Your password should be an OAuth token [authorized through our API](/authentication.md) with the `chat_login` scope.
   - The token must have the prefix of `oauth:`. For example, if you have the token `abcd`, you send `oauth:abcd`.
@@ -34,7 +34,7 @@ A successful connection session will look something like this:
 > :tmi.twitch.tv 376 twitch_username :>
 ```
 
-About once every five minutes, you will receive a `PING tmi.twitch.tv` from the server, in order to ensure that your connection to the server is not prematurely terminated, you should reply with `PONG tmi.twitch.tv`.
+About once every five minutes, you will receive a `PING :tmi.twitch.tv` from the server, in order to ensure that your connection to the server is not prematurely terminated, you should reply with `PONG :tmi.twitch.tv`.
 
 ## On an Unsuccessful Connection
 
@@ -46,7 +46,7 @@ If your connection fails for any reason, you will be disconnected from the serve
 
 ## Command & Message Limit
 
-- If you send more than 20 commands or messages to the server within a 30 second period, you will be locked out for 8 hours automatically. These are *not* lifted so please be careful when working with IRC!
+- If you send more than 20 commands or messages to the server within a 30 second period, you will be locked out for 2 hours automatically. These are *not* lifted so please be careful when working with IRC!
 - This limit is elevated to 100 messages per 30 seconds for users that *only* send messages/commands to channels in which they have Moderator/Operator status.
 
 ## Commands you can send
@@ -63,7 +63,11 @@ A brief list of commands supported by our IRC server include:
 
 **JOIN** *#channel*
 
-Note: After a successful `JOIN`, you will *not* receive a membership state events (`NAMES`, `JOIN`, `PART`, or `MODE`) *unless* you've requested our [IRCv3 `Membership`](#membership) capability
+Note:
+- After a successful `JOIN`, you will *not* receive a membership state events (`NAMES`, `JOIN`, `PART`, or `MODE`) *unless* you've requested our [IRCv3 `Membership`](#membership) capability.
+- The channel name should be entered in lowercase.
+- Attempting to join a suspended or deleted channel will result in a `msg_channel_suspended` NOTICE.
+- Attempting to join a non-existent channel will result in the JOIN being quietly dropped.
 
 ```
 < JOIN #channel
@@ -152,7 +156,7 @@ Someone gained or lost operator:
 > :tmi.twitch.tv CAP * ACK :twitch.tv/commands
 ```
 
-Enables `USERSTATE`, `GLOBALUSERSTATE`, `HOSTTARGET`, `NOTICE` and `CLEARCHAT` raw commands.
+Enables custom raw commands detailed below.
 
 ### NOTICE
 
@@ -165,13 +169,31 @@ General notices from the server - could be about state change (slowmode enabled)
  msg-id | reponse
  ---|---
 subs_on | This room is now in subscribers-only mode.
+already_subs_on | This room is already in subscribers-only mode.
 subs_off | This room is no longer in subscribers-only mode.
+already_subs_off | This room is not in subscribers-only mode.
 slow_on | This room is now in slow mode. You may send messages every `slow_duration` seconds.
 slow_off | This room is no longer in slow mode.
 r9k_on | This room is now in r9k mode.
+already_r9k_on | This room is already in r9k mode.
 r9k_off | This room is no longer in r9k mode.
+already_r9k_off | This room is not in r9k mode.
 host_on | Now hosting `target_channel`.
+bad_host_hosting | This channel is already hosting `target_channel`.
 host_off | Exited host mode.
+hosts_remaining | `number` host commands remaining this half hour.
+emote_only_on | This room is now in emote-only mode.
+already_emote_only_on | This room is already in emote-only mode.
+emote_only_off | This room is no longer in emote-only mode.
+already_emote_only_off | This room is not in emote-only mode.
+msg_channel_suspended | This channel has been suspended.
+timeout_success | `target_user` has been timed out for `ban_duration` seconds.
+ban_success | `target_user` is now banned from this room.
+unban_success | `target_user` is no longer banned from this room.
+bad_unban_no_ban | `target_user` is not banned from this room.
+already_banned | `target_user` is already banned in this room.
+unrecognized_cmd | Unrecognized command: `command`
+
 
 ### HOSTTARGET
 
@@ -189,7 +211,7 @@ Number is assumed to be the number of viewers watching the host.
 
 ### CLEARCHAT
 
-Username is timed out on channel:
+Username is timed out or banned on a channel. See CLEARCHAT tags [below](#clearchat-1) to differentiate.
 
 ```
 > :tmi.twitch.tv CLEARCHAT #channel :twitch_username
@@ -201,11 +223,34 @@ Chat is cleared on channel:
 ```
 ### USERSTATE
 
-Use with tags CAP to get anything out of it. See USERSTATE tags below as it doesn't offer anything without them.
+Use with tags CAP. See USERSTATE tags [below](#userstate-1).
 
 ```
 > :tmi.twitch.tv USERSTATE #channel
 ```
+
+### RECONNECT
+
+Twitch IRC processes ocasionally need to be restarted. When this happens, clients that have requested the IRCv3 `twitch.tv/commands` capability are issued a `RECONNECT`. After a short period of time, the connection will be closed.
+
+In this circumstance, please reconnect and rejoin channels that were on that connection as you would normally.
+
+### ROOMSTATE
+
+Use with tags CAP. See ROOMSTATE tags [below](#roomstate-1).
+
+```
+> :tmi.twitch.tv ROOMSTATE #channel
+```
+
+### USERNOTICE
+
+USERNOTICE is a special notice from a user currently only used for re-subscription messages. See USERNOTICE tags [below](#usernotice-1).
+
+```
+> :tmi.twitch.tv USERNOTICE #channel :message
+```
+
 ## Tags
 
 ```
@@ -216,37 +261,114 @@ Adds IRC v3 message tags to `PRIVMSG`, `USERSTATE`, `NOTICE` and `GLOBALUSERSTAT
 
 ### PRIVMSG
 
-Example message:
+#### Normal message
 
 ```
-> @color=#0D4200;display-name=TWITCH_UserNaME;emotes=25:0-4,12-16/1902:6-10;subscriber=0;turbo=1;user-type=global_mod :twitch_username!twitch_username@twitch_username.tmi.twitch.tv PRIVMSG #channel :Kappa Keepo Kappa
+> @badges=global_mod/1,turbo/1;color=#0D4200;display-name=TWITCH_UserNaME;emotes=25:0-4,12-16/1902:6-10;mod=0;room-id=1337;subscriber=0;turbo=1;user-id=1337;user-type=global_mod :twitch_username!twitch_username@twitch_username.tmi.twitch.tv PRIVMSG #channel :Kappa Keepo Kappa
 ```
 
+#### Bits message
+
+```
+> @badges=staff/1,bits/1000;bits=100;color=;display-name=TWITCH_UserNaME;emotes=;id=b34ccfc7-4977-403a-8a94-33c6bac34fb8;mod=0;room-id=1337;subscriber=0;turbo=1;user-id=1337;user-type=staff :twitch_username!twitch_username@twitch_username.tmi.twitch.tv PRIVMSG #channel :cheer100
+```
+
+- `badges` is a comma-separated list of chat badges, valid badges are `staff`, `admin`, `global_mod`, `moderator`, `subscriber` and `turbo`.
 - `color` is a hexadecimal RGB color code
   - Empty if it's never been set.
-- `display-name` is the user's display name, escaped as described [as described in the IRCv3 spec](http://ircv3.net/specs/core/message-tags-3.2.html).
+- `display-name` is the user's display name, escaped [as described in the IRCv3 spec](http://ircv3.net/specs/core/message-tags-3.2.html).
   - Empty if it's never been set.
 - `emotes` contains information to replace text in the message with the emote images and *can be empty*. The format is as follows:
   - `emote_id:first_index-last_index,another_first-another_last/another_emote_id:first_index-last_index`
   - `emote_id` is the number to use in this URL: `http://static-cdn.jtvnw.net/emoticons/v1/:emote_id/:size` (size is 1.0, 2.0 or 3.0)
   - Emote indexes are simply character indexes. `\001ACTION ` does *not* count and indexing starts from the first character that is part of the user's "actual message". In the example message, the first Kappa (emote id 25) is from character 0 (K) to character 4 (a), and the other Kappa is from 12 to 16.
-- `subscriber`and `turbo` are either 0 or 1 depending on whether the user has sub or turbo badge or not.
+- `id` is a unique identifier for a message.
+- `mod`, `subscriber` and `turbo` are either 0 or 1 depending on whether the user has mod, sub or turbo badge or not.
+- `room-id` is the ID of the channel.
+- `user-id` is the user's ID.
 - `user-type` is either *empty*, `mod`, `global_mod`, `admin` or `staff`.
   - The broadcaster can have any of these, including empty.
+- `bits`, if present, means the user used this amount of cheer/bits. All instances of `/(^|\s)cheer\d+(\s|$)/` should be replaced with the appropriate emote: `static-cdn.jtvnw.net/bits/THEME/TYPE/COLOR/SIZE`, where
+  - `THEME` is `light` or `dark`
+  - `TYPE` is `animated` or `static`
+  - `COLOR` is `red` for >= 10000 bits, `blue` for >= 5000, `green` for >= 1000, `purple` for >= 100, or otherwise `gray`
+  - `SIZE` is a digit between 1 and 4.
 
 ### USERSTATE
 
 USERSTATE is sent when joining a channel and every time you send a PRIVMSG to a channel. Example:
 
 ```
-> @color=#0D4200;display-name=TWITCH_UserNaME;emote-sets=0,33,50,237,793,2126,3517,4578,5569,9400,10337,12239;subscriber=1;turbo=1;user-type=staff :tmi.twitch.tv USERSTATE #channel
+> @color=#0D4200;display-name=TWITCH_UserNaME;emote-sets=0,33,50,237,793,2126,3517,4578,5569,9400,10337,12239;mod=1;subscriber=1;turbo=1;user-type=staff :tmi.twitch.tv USERSTATE #channel
 ```
 
-- `emote-sets` contains your emote set, which you can use to request a subset of `https://api.twitch.tv/kraken/chat/emoticon_images`.
+- `emote-sets` contains your emote set, which you can use to request a subset of [`/chat/emoticon_images`](/v3_resources/chat.md#get-chatemoticon_images).
   - eg: `https://api.twitch.tv/kraken/chat/emoticon_images?emotesets=0,33,50,237,793,2126,3517,4578,5569,9400,10337,12239`
   - Always contains at least 0.
-- Other tags shared with PRIVMSG function the same way.
+- Other tags are shared with PRIVMSG and function the same way.
 
 ### GLOBALUSERSTATE
 
-GLOBALUSERSTATE will be used in the future to describe non-channel-specific state information.
+GLOBALUSERSTATE is sent on successful login, if the capabilities have been acknowledged before then. Example:
+
+```
+> @color=#0D4200;display-name=TWITCH_UserNaME;emote-sets=0,33,50,237,793,2126,3517,4578,5569,9400,10337,12239;turbo=0;user-id=1337;user-type=admin :tmi.twitch.tv GLOBALUSERSTATE
+```
+
+- All tags are shared with PRIVMSG or USERSTATE and function the same way.
+
+### ROOMSTATE
+
+ROOMSTATE is sent when joining a channel and every time one of the chat room settings, like slow mode, change. The message on join contains all room settings. Example:
+
+```
+> @broadcaster-lang=;r9k=0;slow=0;subs-only=0 :tmi.twitch.tv ROOMSTATE #channel
+```
+
+Changes only contain the relevant tag. Setting slow mode to 10 seconds for example:
+
+```
+> @slow=10 :tmi.twitch.tv ROOMSTATE #channel
+```
+
+- `broadcaster-lang` is the chat language when [broadcaster language mode](http://blog.twitch.tv/2015/07/broadcaster-language-mode/) is enabled, and empty otherwise. A few examples would be `en` for English, `fi` for Finnish and `es-MX` for Mexican variant of Spanish.
+- `r9k` is R9K mode. Messages with more than 9 characters must be unique. `0` means disabled, `1` enabled.
+- `subs-only` is subscribers only mode. Only subscribers and moderators can chat. `0` disabled, `1` enabled.
+- `slow` determines how many seconds chatters without moderator privileges must wait between sending messages.
+
+### USERNOTICE
+
+#### Re-subscription notice
+
+```
+> @badges=staff/1,broadcaster/1,turbo/1;color=#008000;display-name=TWITCH_UserName;emotes=;mod=0;msg-id=resub;msg-param-months=6;room-id=1337;subscriber=1;system-msg=TWITCH_UserName\shas\ssubscribed\sfor\s6\smonths!;login=twitch_username;turbo=1;user-id=1337;user-type=staff :tmi.twitch.tv USERNOTICE #channel :Great stream -- keep it up!
+```
+
+Trailing part of the message will be entirely omitted, if the user did not enter a message:
+
+```
+> @badges=staff/1,broadcaster/1,turbo/1;color=#008000;display-name=TWITCH_UserName;emotes=;mod=0;msg-id=resub;msg-param-months=6;room-id=1337;subscriber=1;system-msg=TWITCH_UserName\shas\ssubscribed\sfor\s6\smonths!;login=twitch_username;turbo=1;user-id=1337;user-type=staff :tmi.twitch.tv USERNOTICE #channel
+```
+
+- `msg-id` is the type of the notice. See above examples for valid types.
+- `msg-param-months` is the number of consecutive months the user has subscribed for in a resub notice.
+- `system-msg` is the message printed in chat along with this notice.
+- `login` is the username of the user, who sent the notice.
+- Other tags are shared with PRIVMSG and function the same way.
+
+### CLEARCHAT
+
+#### User is timed out
+
+```
+@ban-duration=1;ban-reason=Follow\sthe\srules :tmi.twitch.tv CLEARCHAT #channel :target_username
+```
+
+#### User is banned
+
+```
+@ban-reason=Follow\sthe\srules :tmi.twitch.tv CLEARCHAT #channel :target_username
+```
+
+- `ban-duration` is the duration of the timeout in seconds. The tag is omitted on permanent bans.
+- `ban-reason` is the reason the moderator gave for the timeout or ban.

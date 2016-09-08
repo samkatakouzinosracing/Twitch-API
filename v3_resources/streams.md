@@ -50,7 +50,9 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
     "game": "StarCraft II: Heart of the Swarm",
     "viewers": 2123,
     "average_fps": 29.9880749574,
+    "delay": 0,
     "video_height": 720,
+    "is_playlist": false,
     "created_at": "2015-02-12T04:42:31Z",
     "_id": 4989654544,
     "channel": {
@@ -59,7 +61,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
       "broadcaster_language": "en",
       "display_name": "test_channel",
       "game": "StarCraft II: Heart of the Swarm",
-      "delay": 0,
+      "delay": null,
       "language": "en",
       "_id": 12345,
       "name": "test_channel",
@@ -147,6 +149,18 @@ Returns a list of stream objects that are queried by a number of parameters sort
             <td>string</td>
             <td>Only shows streams from applications of <code>client_id</code>.</td>
         </tr>
+        <tr>
+            <td><code>stream_type</code></td>
+            <td>optional</td>
+            <td>string</td>
+            <td>Only shows streams from a certain type. Permitted values: <code>all</code>, <code>playlist</code>, <code>live</code></td>
+        </tr>
+        <tr>
+            <td><code>language</code></td>
+            <td>optional</td>
+            <td>string</td>
+            <td>Only shows streams of a certain language. Permitted values are locale ID strings, e.g. `en`, `fi`, `es-mx`.</td>
+        </tr>
     </tbody>
 </table>
 
@@ -167,7 +181,9 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
       "game": "StarCraft II: Heart of the Swarm",
       "viewers": 2123,
       "average_fps": 29.9880749574,
+      "delay": 0,
       "video_height": 720,
+      "is_playlist": false,
       "created_at": "2015-02-12T04:42:31Z",
       "_id": 4989654544,
       "channel": {
@@ -176,7 +192,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
         "broadcaster_language": "en",
         "display_name": "test_channel",
         "game": "StarCraft II: Heart of the Swarm",
-        "delay": 0,
+        "delay": null,
         "language": "en",
         "_id": 12345,
         "name": "test_channel",
@@ -286,6 +302,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
         "game": "StarCraft II: Heart of the Swarm",
         "viewers": 2123,
         "average_fps": 29.9880749574,
+        "delay": 0,
         "video_height": 720,
         "created_at": "2015-02-12T04:42:31Z",
         "_id": 4989654544,
@@ -295,7 +312,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
           "broadcaster_language": "en",
           "display_name": "test_channel",
           "game": "StarCraft II: Heart of the Swarm",
-          "delay": 0,
+          "delay": null,
           "language": "en",
           "_id": 12345,
           "name": "test_channel",
@@ -394,4 +411,4 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
 
 [See here for embedding.][embedding]
 
-[embedding]: /embedding.md#embedding-streams-vods-and-chat
+[embedding]: /embed-video.md#embedding-twitch-live-streams--videos

@@ -1,5 +1,15 @@
 # Twitch API v3
 
+[![Analytics](https://ga-beacon.appspot.com/UA-23719667-10/README)](https://github.com/igrigorik/ga-beacon)
+
+## Terms of Use
+
+By accessing or using Twitch API, you are indicating that you have read and agree to Twitch's [Terms of Service][], [Privacy Policy][], and [API Terms of Service][].
+
+[Terms of Service]: https://www.twitch.tv/user/legal?page=terms_of_service
+[Privacy Policy]: https://www.twitch.tv/user/legal?page=privacy_policy
+[API Terms of Service]: https://www.twitch.tv/user/legal?page=api_terms_of_service
+
 ## Overview
 
 The Twitch API enables you to develop your own applications using the rich feature set that we provide. Features include retrieving data about what streams are live, changing information about specific channels, and doing an SSO integration with Twitch. The following pages list the resources that the Twitch API provides. If you have any questions or need help in using this API, please visit the [Twitch Developer Forums][]. We also have an IRC channel over on freenode: chat.freenode.net:6667/[#twitch-api][]. Bugs can be reported on our [Github Issues][].
@@ -14,7 +24,7 @@ The Twitch API is comprised of two parts: the REST API and a [JavaScript SDK][] 
 
 ### API Versions and MIME Types
 
-The current stable API version is **v3**. We allow clients to use any version of our API. Versioning is per-method so for example you can have v2 of `/channels` and v3 of `/users`. 
+The current stable API version is **v3**. We allow clients to use any version of our API. Versioning is per-method so for example you can have v2 of `/channels` and v3 of `/users`.
 
 __We *strongly* recommend specifying a version, otherwise version updates might break your application if you've defaulted your requests to use the latest version.__
 
@@ -41,14 +51,14 @@ Specify a specific version (v2):
 
     curl -i -H 'Accept: application/vnd.twitchtv.v2+json'\
     -H 'Client-ID: axjhfp777tflhy0yjb5sftsil'\
-    'https://api.twitch.tv/kraken/channels/hebo' 
-    
+    'https://api.twitch.tv/kraken/channels/hebo'
+
     HTTP/1.1 200 OK
     ...
     x-api-version: 2
     ...
     Front-End-Https: on
-    
+
     { ...
 
 ### Formats
@@ -124,13 +134,9 @@ Client-ID: <client_id>
 
 In situations where headers cannot be set, you can also specify a client ID as a querystring parameter: `client_id=<client_id>`
 
-### Terms of Service
-
-Please review our [Terms of Service](http://www.twitch.tv/user/legal?page=api_terms_of_service) for the Twitch API.
-
 <a name="oauth"/>
 <a name="wiki-auth"/>
-## Authentication 
+## Authentication
 
 We use an OAuth 2.0, an authentication protocol designed to make accessing user accounts from third party clients easy and secure. Read our [authentication guide][] to see how to connect with Twitch users from your own service.
 
@@ -160,6 +166,17 @@ We use an OAuth 2.0, an authentication protocol designed to make accessing user 
 | [POST /channels/:channel/commercial](/v3_resources/channels.md#post-channelschannelcommercial) | Start a commercial on channel |
 | [GET /channels/:channel/teams](/v3_resources/channels.md#get-channelschannelteams) | Get list of teams channel belongs to |
 
+### [Channel Feed](/v3_resources/channel_feed.md)
+
+| Endpoint | Description |
+| ---- | --------------- |
+| [GET /feed/:channel/posts](/v3_resources/channel_feed.md#get-feedchannelposts) | Get channel feed posts |
+| [POST /feed/:channel/posts](/v3_resources/channel_feed.md#post-feedchannelposts) | Create post |
+| [GET /feed/:channel/posts/:id](/v3_resources/channel_feed.md#get-feedchannelpostsid) | Get post |
+| [DELETE /feed/:channel/posts/:id](/v3_resources/channel_feed.md#delete-feedchannelpostsid) | Delete post |
+| [POST /feed/:channel/posts/:id/reactions](/v3_resources/channel_feed.md#post-feedchannelpostsidreactions) | Create reaction to post |
+| [DELETE /feed/:channel/posts/:id/reactions](/v3_resources/channel_feed.md#delete-feedchannelpostsidreactions) | Delete reaction |
+
 ### [Chat](/v3_resources/chat.md)
 
 | Endpoint | Description |
@@ -167,6 +184,7 @@ We use an OAuth 2.0, an authentication protocol designed to make accessing user 
 | [GET /chat/:channel](/v3_resources/chat.md#get-chatchannel) | Get links object to other chat endpoints |
 | [GET /chat/:channel/badges](/v3_resources/chat.md#get-chatchannelbadges) | Get chat badges for channel |
 | [GET /chat/emoticons](/v3_resources/chat.md#get-chatemoticons) | Get list of every emoticon object |
+| [GET /chat/emoticon_images](/v3_resources/chat.md#get-chatemoticon_images) | Get list of emoticons |
 
 ### [Follows](/v3_resources/follows.md)
 
@@ -235,6 +253,7 @@ We use an OAuth 2.0, an authentication protocol designed to make accessing user 
 | Endpoint | Description |
 | ---- | --------------- |
 | [GET /users/:user](/v3_resources/users.md#get-usersuser) | Get user object |
+| [GET /users/:user/emotes](v3_resources/users.md#get-usersuseremotes) | Get list of user's emotes |
 | [GET /user](/v3_resources/users.md#get-user) | Get user object |
 | [GET /streams/followed](/v3_resources/users.md#get-streamsfollowed) | Get list of streams user is following |
 | [GET /videos/followed](/v3_resources/users.md#get-videosfollowed) | Get list of videos belonging to channels user is following |

@@ -38,7 +38,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
   "broadcaster_language": "en",
   "display_name": "test_channel",
   "game": "Gaming Talk Shows",
-  "delay": 0,
+  "delay": null,
   "language": "en",
   "_id": 12345,
   "name": "test_channel",
@@ -60,7 +60,6 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' \
     "commercial": "https://api.twitch.tv/kraken/channels/test_channel/commercial",
     "stream_key": "https://api.twitch.tv/kraken/channels/test_channel/stream_key",
     "chat": "https://api.twitch.tv/kraken/chat/test_channel",
-    "features": "https://api.twitch.tv/kraken/channels/test_channel/features",
     "subscriptions": "https://api.twitch.tv/kraken/channels/test_channel/subscriptions",
     "editors": "https://api.twitch.tv/kraken/channels/test_channel/editors",
     "teams": "https://api.twitch.tv/kraken/channels/test_channel/teams",
@@ -91,7 +90,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
   "broadcaster_language": "en",
   "display_name": "test_channel",
   "game": "Gaming Talk Shows",
-  "delay": 0,
+  "delay": null,
   "language": "en",
   "_id": 12345,
   "name": "test_channel",
@@ -113,7 +112,6 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
     "commercial": "https://api.twitch.tv/kraken/channels/test_channel/commercial",
     "stream_key": "https://api.twitch.tv/kraken/channels/test_channel/stream_key",
     "chat": "https://api.twitch.tv/kraken/chat/test_channel",
-    "features": "https://api.twitch.tv/kraken/channels/test_channel/features",
     "subscriptions": "https://api.twitch.tv/kraken/channels/test_channel/subscriptions",
     "editors": "https://api.twitch.tv/kraken/channels/test_channel/editors",
     "teams": "https://api.twitch.tv/kraken/channels/test_channel/teams",
@@ -173,7 +171,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
 
 ## `PUT /channels/:channel/`
 
-Update channel's status or game.
+Update channel's properties.
 
 *__Authenticated__*, required scope: `channel_editor`
 
@@ -207,6 +205,12 @@ Update channel's status or game.
             <td>string</td>
             <td>Channel delay in seconds. Requires the channel owner's OAuth token.</td>
         </tr>
+        <tr>
+            <td><code>channel_feed_enabled</code></td>
+            <td>optional</td>
+            <td>boolean</td>
+            <td>Whether the channel's feed is enabled. Requires the channel owner's OAuth token.</td>
+        </tr>
     </tbody>
 </table>
 
@@ -217,7 +221,8 @@ Form-encoded or JSON parameters specifying the properties to change. These shoul
   "channel": {
     "status": "Playing cool new game!",
     "game": "Diablo",
-    "delay": 60
+    "delay": 60,
+    "channel_feed_enabled": false
     }
 }
 ```
@@ -239,7 +244,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
   "broadcaster_language": "en",
   "display_name": "test_channel",
   "game": "Diablo",
-  "delay": 0,
+  "delay": null,
   "language": "en",
   "_id": 12345,
   "name": "test_channel",
@@ -261,7 +266,6 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
     "commercial": "https://api.twitch.tv/kraken/channels/test_channel/commercial",
     "stream_key": "https://api.twitch.tv/kraken/channels/test_channel/stream_key",
     "chat": "https://api.twitch.tv/kraken/chat/test_channel",
-    "features": "https://api.twitch.tv/kraken/channels/test_channel/features",
     "subscriptions": "https://api.twitch.tv/kraken/channels/test_channel/subscriptions",
     "editors": "https://api.twitch.tv/kraken/channels/test_channel/editors",
     "teams": "https://api.twitch.tv/kraken/channels/test_channel/teams",
@@ -296,7 +300,7 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
   "broadcaster_language": "en",
   "display_name": "test_channel",
   "game": "Gaming Talk Shows",
-  "delay": 0,
+  "delay": null,
   "language": "en",
   "_id": 12345,
   "name": "test_channel",
@@ -318,7 +322,6 @@ curl -H 'Accept: application/vnd.twitchtv.v3+json' -H 'Authorization: OAuth <acc
     "commercial": "https://api.twitch.tv/kraken/channels/test_channel/commercial",
     "stream_key": "https://api.twitch.tv/kraken/channels/test_channel/stream_key",
     "chat": "https://api.twitch.tv/kraken/chat/test_channel",
-    "features": "https://api.twitch.tv/kraken/channels/test_channel/features",
     "subscriptions": "https://api.twitch.tv/kraken/channels/test_channel/subscriptions",
     "editors": "https://api.twitch.tv/kraken/channels/test_channel/editors",
     "teams": "https://api.twitch.tv/kraken/channels/test_channel/teams",

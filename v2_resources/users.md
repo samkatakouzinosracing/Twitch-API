@@ -47,6 +47,8 @@ Returns a user object.
 
 *__Authenticated__*, required scope: `user_read`
 
+__Note:__ If the user's Twitch registered Email Address is not verified, `null` will be returned.
+
 ### Example Request
 
 ```bash
